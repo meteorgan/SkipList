@@ -28,7 +28,7 @@ class SkipListSpec extends FlatSpec {
     }
 
     "insert " should "has length of insert nodes" in {
-        val list = SkipList.List()
+        val list = SkipList.List[String, Int]()
         var set = Set[String]()
         val size = 1000
         for(i <- 0 until size) {
@@ -41,7 +41,7 @@ class SkipListSpec extends FlatSpec {
     }
 
     "delete" should "has right length after delete" in {
-        val list = SkipList.List()
+        val list = SkipList.List[String, Int]()
         val size = 3333
         val deleteSize = 10
 
@@ -60,7 +60,7 @@ class SkipListSpec extends FlatSpec {
     }
 
     "search" should "find the existed elements" in {
-        val list = SkipList.List()
+        val list = SkipList.List[String, Int]()
         val size = 1200000
         val deleteSize = 20000
         var map = Map[String, Int]()
@@ -82,7 +82,7 @@ class SkipListSpec extends FlatSpec {
     }
 
     "apply" should "find the element in a position" in {
-        val list = SkipList.List()
+        val list = SkipList.List[String, Int]()
         var set = SortedSet[String]()
         val size = 10000
         val deleteSize = 1000
@@ -109,7 +109,7 @@ class SkipListSpec extends FlatSpec {
 
 
     "min/max" should "return the min/max item" in {
-        val list = SkipList.List()
+        val list = SkipList.List[String, Int]()
         val size = 89000
         var map = Map[String, Int]()
         for(i <- 0 until size) {
@@ -123,7 +123,7 @@ class SkipListSpec extends FlatSpec {
         assert(list.max.get.key == map.keys.max)
     }
     it should "return None if list is empty" in {
-        val list = SkipList.List()
+        val list = SkipList.List[String, Int]()
         assert(list.min == None)
         assert(list.max == None)
     }
@@ -137,7 +137,7 @@ class SkipListSpec extends FlatSpec {
         val keys = testcase.keys.toSeq
         val existsNumber = keys.length - keys.length/10
 
-        val lst = SkipList.List()
+        val lst = SkipList.List[String, Int]()
         for(i <- 0 until existsNumber) {
             val key = keys(i)
             lst.insert(key, testcase(key))

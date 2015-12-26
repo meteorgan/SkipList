@@ -2,19 +2,19 @@ package org.skiplist
 
 import scala.util.Random
 
-class SkipList {
+class SkipList[K <% Ordered[K], V] {
     import SkipList.{maxLevel, prob}
 
     private val random = new Random(System.currentTimeMillis())
     private var currentLevel = 1
     private var size = 0
-    private val header = new SkipListNode("header", 0, maxLevel)
+    private val header = new SkipListNode[K, V](maxLevel)
     private var tail = header.forwards(0)
     private var _searchTimes = 0
 
     def length = size
 
-    def search(key: String): Option[SkipListNode] = {
+    def search(key: K): Option[SkipListNode[K, V]] = {
         _searchTimes = 0
         var node = header
         for(level <- currentLevel-1 to 0 by -1) {
@@ -31,11 +31,11 @@ class SkipList {
 
     protected[skiplist] def searchTimes = _searchTimes
 
-    def max: Option[SkipListNode] = Option(tail)
+    def max: Option[SkipListNode[K, V]] = Option(tail)
 
-    def min: Option[SkipListNode] = Option(header.forwards(0))
+    def min: Option[SkipListNode[K, V]] = Option(header.forwards(0))
 
-    def apply(index: Int): SkipListNode = {
+    def apply(index: Int): SkipListNode[K, V] = {
         if(index < 0 || index >= size)
             throw new IndexOutOfBoundsException(s"$index")
         var node = header
@@ -49,8 +49,8 @@ class SkipList {
         node.forwards(0)
     }
 
-    def insert(key: String, value: Int): Unit = {
-        val update = Array.fill[SkipListNode](currentLevel)(null)
+    def insert(key: K, value: V): Unit = {
+        val update = Array.fill[SkipListNode[K, V]](currentLevel)(null)
         val spans = new Array[Int](currentLevel+1)
         var node = header
         for(i <- currentLevel-1 to 0 by -1) {
@@ -68,7 +68,7 @@ class SkipList {
         }
         else {
             val level = randomLevel()
-            val newNode = new SkipListNode(key, value, level)
+            val newNode = new SkipListNode[K, V](key, value, level)
             val minLevel = currentLevel.min(level)
             if(level > currentLevel) {
                 for(i <- level-1 to currentLevel by -1) {
@@ -100,8 +100,8 @@ class SkipList {
         }
     }
 
-    def delete(key: String): Option[SkipListNode] = {
-        val update = Array.fill[SkipListNode](currentLevel)(null)
+    def delete(key: K): Option[SkipListNode[K, V]] = {
+        val update = Array.fill[SkipListNode[K, V]](currentLevel)(null)
         var node = header
         for(i <- currentLevel-1 to 0 by -1) {
             while(node.forwards(i) != null && node.forwards(i).key < key) {
@@ -168,12 +168,12 @@ object SkipList {
     val maxLevel = 32
     val prob = 0.5
 
-    def List(): SkipList = {
-        new SkipList
+    def List[K <% Ordered[K], V](): SkipList[K, V] = {
+        new SkipList[K, V]
     }
 
     def main(args: Array[String]) {
-        val list = List()
+        val list = List[String, Int]()
         list.insert("d", 12)
         list.insert("g", 14)
         list.insert("a", 51)
