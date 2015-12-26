@@ -2,6 +2,7 @@ package org.skiplist
 
 import org.scalatest.FlatSpec
 
+import scala.collection.SortedSet
 import scala.util.Random
 
 class SkipListSpec extends FlatSpec {
@@ -79,6 +80,33 @@ class SkipListSpec extends FlatSpec {
             assert(list.search(key) == None)
         }
     }
+
+    "apply" should "find the element in a position" in {
+        val list = SkipList.List()
+        var set = SortedSet[String]()
+        val size = 10000
+        val deleteSize = 1000
+        for(i <- 0 until size) {
+            val key = randomString
+            val value = randomValue
+            list.insert(key, value)
+            set += key
+        }
+        val seq1 = set.toIndexedSeq
+        for(i <- 0 until set.size)
+            assert(list(i).key == seq1(i))
+        for(i <- 0 until deleteSize) {
+            if(random.nextFloat() < 0.3) {
+                val key = seq1(i)
+                set -= key
+                list.delete(key)
+            }
+        }
+        val seq2 = set.toIndexedSeq
+        for(i <- 0 until set.size)
+            assert(list(i).key == seq2(i))
+    }
+
 
     "min/max" should "return the min/max item" in {
         val list = SkipList.List()

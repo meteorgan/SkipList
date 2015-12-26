@@ -35,14 +35,33 @@ class SkipList {
 
     def min: Option[SkipListNode] = Option(header.forwards(0))
 
+    def apply(index: Int): SkipListNode = {
+        if(index < 0 || index >= size)
+            throw new IndexOutOfBoundsException(s"$index")
+        var node = header
+        var _index = -1
+        for(i <- currentLevel-1 to 0 by -1) {
+            while(node.forwards(i) != null && _index + node.spans(i) < index) {
+                _index += node.spans(i)
+                node = node.forwards(i)
+            }
+        }
+        node.forwards(0)
+    }
+
     def insert(key: String, value: Int): Unit = {
         val update = Array.fill[SkipListNode](currentLevel)(null)
+        val spans = new Array[Int](currentLevel+1)
         var node = header
         for(i <- currentLevel-1 to 0 by -1) {
-            while(node.forwards(i) != null && node.forwards(i).key < key)
+            while(node.forwards(i) != null && node.forwards(i).key < key) {
+                spans(i+1) += node.spans(i)
                 node = node.forwards(i)
+            }
             update(i) = node
         }
+        for(i <- 1 to currentLevel)
+            spans(i) += spans(i-1)
 
         if(node.forwards(0) != null && node.forwards(0).key == key) {
             node.forwards(0).value = value
@@ -55,10 +74,18 @@ class SkipList {
                 for(i <- level-1 to currentLevel by -1) {
                     newNode.forwards(i) = header.forwards(i)
                     header.forwards(i) = newNode
+                    header.spans(i) = spans(currentLevel) + 1
                 }
                 currentLevel = level
             }
+            else {
+                for(i <- currentLevel - 1 to minLevel by -1)
+                    update(i).spans(i) += 1
+            }
             for(i <- minLevel-1 to 0 by -1) {
+                newNode.spans(i) = update(i).spans(i) - spans(i)
+                update(i).spans(i) = spans(i) + 1
+
                 newNode.forwards(i) = update(i).forwards(i)
                 if(i == 0 && update(0).forwards(0) != null)
                     update(0).forwards(0).backward = newNode
@@ -77,14 +104,18 @@ class SkipList {
         val update = Array.fill[SkipListNode](currentLevel)(null)
         var node = header
         for(i <- currentLevel-1 to 0 by -1) {
-            while(node.forwards(i) != null && node.forwards(i).key < key)
+            while(node.forwards(i) != null && node.forwards(i).key < key) {
                 node = node.forwards(i)
+            }
             update(i) = node
         }
         val target = node.forwards(0)
         if(target != null && target.key == key) {
+            for(i <- target.level until currentLevel if update(i).forwards != null)
+                update(i).spans(i) -= 1
             for(i <- target.level-1 to 0 by -1) {
                 update(i).forwards(i) = target.forwards(i)
+                update(i).spans(i) += target.spans(i) - 1
                 if(i == 0 && target.forwards(0) != null)
                     target.forwards(0) = update(0)
                 target.forwards(i) = null
@@ -93,8 +124,9 @@ class SkipList {
             if(update(0).forwards(0) == null) {
                 tail = update(0)
             }
-            for(i <- target.level-1 to 0 by -1 if header.forwards(i) == null)
+            for(i <- target.level-1 to 0 by -1 if header.forwards(i) == null) {
                 currentLevel -= 1
+            }
 
             size -= 1
             Some(node)
@@ -148,6 +180,9 @@ object SkipList {
         list.insert("gd", 1)
         list.printList()
         list.printReverse()
-        println(list.max.get)
+        println(list(0))
+        println(list(1))
+        println(list(2))
+        println(list(3))
     }
 }
