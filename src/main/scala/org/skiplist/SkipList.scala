@@ -29,7 +29,7 @@ class SkipList {
       None
   }
 
-  def searchTimes = _searchTimes
+  protected[skiplist] def searchTimes = _searchTimes
 
   def max: Option[SkipListNode] = Option(tail)
 
@@ -105,7 +105,7 @@ class SkipList {
     level
   }
 
-  def printList(): Unit = {
+  protected[skiplist] def printList(): Unit = {
     var node = header
     print(node)
     while(node.forwards(0) != null) {

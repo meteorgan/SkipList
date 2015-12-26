@@ -1,5 +1,6 @@
+package org.skiplist
+
 import org.scalatest.FlatSpec
-import org.skiplist.SkipList
 
 import scala.util.Random
 
@@ -27,10 +28,15 @@ class SkipListSpec extends FlatSpec {
 
   "insert " should "has length of insert nodes" in {
     val list = SkipList.List()
+    var set = Set[String]()
     val size = 1000
-    for(i <- 0 until size)
-      list.insert(randomString, randomValue)
-    assert(list.length == size)
+    for(i <- 0 until size) {
+        val key = randomString
+        val value = randomValue
+        list.insert(key, value)
+        set += key
+    }
+    assert(list.length == set.size)
   }
 
   "delete" should "has right length after delete" in {
